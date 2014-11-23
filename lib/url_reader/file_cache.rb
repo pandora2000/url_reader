@@ -1,4 +1,4 @@
-class Util::UrlReader::FileCache
+class UrlReader::FileCache
   def initialize(cache_dir_path)
     @cache_dir_path = cache_dir_path
     @cache = {}
