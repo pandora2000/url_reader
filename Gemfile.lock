@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    url_reader (0.2.0)
+    url_reader (0.1.0)
       activesupport (>= 4)
       rest-client
 
