@@ -1,7 +1,8 @@
 class UrlReader::ReadError < UrlReader::BaseError
   PageNotFound = 0
   RequestTimeout = 1
-  UnidentifiedError = 2
+  InternalServerError = 2
+  UnidentifiedError = 3
 
   attr_reader :type
 
@@ -13,6 +14,8 @@ class UrlReader::ReadError < UrlReader::BaseError
         PageNotFound
       elsif inner.is_a?(RestClient::RequestTimeout)
         RequestTimeout
+      elsif inner.is_a?(RestClient::InternalServerError)
+        InternalServerError
       else
         UnidentifiedError
       end
