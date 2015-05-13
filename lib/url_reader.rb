@@ -69,13 +69,10 @@ module UrlReader
              Errno::ECONNREFUSED,
              Errno::ECONNRESET => e
         ne = ReadError.new(e, "Read #{hash[:url]} failed")
-        if options[:ignore_not_found]
-          options[:ignore_read_errors] ||= []
-          options[:ignore_read_errors] << 'PageNotFound'
-        end
-        if ignore_errors = options[:ignore_read_errors]
-          return nil if ignore_errors.map { |x| x.is_a?(Integer) ? x : ReadError.const_get(x) }.include?(ne.type)
-        end
+        ignore_errors = options[:ignore_errors] || []
+        ignore_errors << 'PageNotFound' if options[:ignore_not_found]
+        ignore_errors << 'InternalServerError' if options[:ignore_server_error]
+        return nil if ignore_errors.map { |x| x.is_a?(Integer) ? x : ReadError.const_get(x) }.include?(ne.type)
         raise ne
       end
     return nil unless response
