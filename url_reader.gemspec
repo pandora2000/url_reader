@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'url_reader'
-  s.version = '0.2.2'
+  s.version = '0.2.3'
   s.authors = ['Tetsuri Moriya']
   s.email = ['tetsuri.moriya@gmail.com']
   s.summary = 'Url reader'
