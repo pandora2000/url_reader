@@ -76,7 +76,8 @@ module UrlReader
         raise ne
       end
     return nil unless response
-    return resolve_encoding(response) if response.headers[:content_type] !~ /^image\//
+    image_content_type = options[:image_content_type]
+    return resolve_encoding(response) unless response.headers[:content_type] =~ /^image\// || (image_content_type && response.headers[:content_type] == image_content_type)
     response.to_str
   end
 
