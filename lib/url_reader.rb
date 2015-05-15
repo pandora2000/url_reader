@@ -10,12 +10,21 @@ module UrlReader
   REQUEST_TIMEOUT = 10
   REQUEST_OPEN_TIMEOUT = 10
 
+  cattr_accessor :last_response_headers, :last_response_cookies, :last_cache_used
+
   def read_url(url, options = {})
+    self.class.last_response_headers = nil
+    self.class.last_response_cookies = nil
+    self.class.last_cache_used = false
     if defined?(Rails) && Rails.env.development?
       if ENV['READ_URL_CACHE_NOT_USE'] != 'true'
         ckey = cache_key(url, options)
-        res = cache.read_entry(ckey)
-        res || read_url_core_with_cache_write(url, options, ckey)
+        if res = cache.read_entry(ckey)
+          self.class.last_cache_used = true
+          res
+        else
+          read_url_core_with_cache_write(url, options, ckey)
+        end
       else
         read_url_core_with_cache_write(url, options)
       end
@@ -48,12 +57,16 @@ module UrlReader
   def read_url_core(url, options)
     valid_url = fixed_url(url)
     headers = {}
+    headers.merge!(options[:headers]) if options[:headers]
     headers[:user_agent] = options[:user_agent] if options[:user_agent]
+    cookies = {}
+    cookies.merge!(options[:cookies]) if options[:cookies]
     hash = {
       url: valid_url,
       timeout: options[:request_timeout] || REQUEST_TIMEOUT,
       open_timeout: options[:request_open_timeout] || REQUEST_OPEN_TIMEOUT,
-      headers: headers
+      headers: headers,
+      cookies: cookies
     }
     response =
       begin
@@ -76,6 +89,8 @@ module UrlReader
         raise ne
       end
     return nil unless response
+    self.class.last_response_headers = response.headers
+    self.class.last_response_cookies = response.cookies
     image_content_type = options[:image_content_type]
     return resolve_encoding(response) unless response.headers[:content_type] =~ /^image\// || (image_content_type && response.headers[:content_type] == image_content_type)
     response.to_str
