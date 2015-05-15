@@ -10,7 +10,9 @@ module UrlReader
   REQUEST_TIMEOUT = 10
   REQUEST_OPEN_TIMEOUT = 10
 
-  cattr_accessor :last_response_headers, :last_response_cookies, :last_cache_used
+  included do
+    cattr_accessor :last_response_headers, :last_response_cookies, :last_cache_used
+  end
 
   def read_url(url, options = {})
     self.class.last_response_headers = nil
